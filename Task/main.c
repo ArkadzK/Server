@@ -103,7 +103,7 @@ uint8_t* pData;
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 static uint8_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength);
-static void uart_receive_MSG(uint8_t* rx_buff, uint32_t size);
+static void uart_receive_MSG(uint8_t* rx_buff, uint16_t size);
 static void clear_buff( uint8_t* buf, uint32_t length);
 STAGE comm_est (void);
 STAGE read_cmd (uint8_t* comm, uint8_t* length);
@@ -223,7 +223,7 @@ uint32_t ind = 60000;
 //__disable_interrupt();
 HAL_StatusTypeDef st;//=FLASH_WaitForLastOperation(1000);
 HAL_FLASH_Unlock();
-for ( ind =60000; ind<0xfffff;)
+for ( ind =0; ind<0xfffff;)
 {
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
                     FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
@@ -457,10 +457,11 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 #endif
 
-static void uart_receive_MSG(uint8_t* rx_buff, uint32_t size)
+static void uart_receive_MSG(uint8_t* rx_buff, uint16_t size)
 {
   /*##-2- Put UART peripheral in reception process ###########################*/  
     if(HAL_UART_Receive_DMA(&UartHandle, rx_buff, (uint16_t) size) != HAL_OK)
+//  while(HAL_UART_Receive_DMA(&UartHandle, rx_buff, (uint16_t) size) != HAL_OK)
     {
       Error_Handler();
     }
@@ -509,7 +510,10 @@ STAGE read_param(void)
   case 4: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);break;//read flash from addr to addr
 
   case 5:uData.flash_sector_start = *(uint32_t*)aRxBuffer;break;//WriteSector
-  case 6: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);uData.pattern = *(uint32_t*)(aRxBuffer+8);break;//WritePage
+  case 6: uData.flash_address_start = *(uint32_t*)aRxBuffer; 
+          uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);
+//          uData.pattern = *(uint32_t*)(aRxBuffer+8);
+          break;//WritePage
   
   default: return (STAGE)2; break;
   }
@@ -604,8 +608,7 @@ STAGE exec_command(void)
   {
   case 1: 
     {
-  /////////////////////////////////////////////    
-  //    error = erase_bank ( 2 );
+      uFLASH_ProcessTypeDefStruct.ErrorCode = erase_bank ( 2 );
       trans_msg ((uint8_t*)"CA",2);
       stage = READCMD;
       break;
@@ -619,7 +622,7 @@ STAGE exec_command(void)
     }
   case 3:
     {
-      uint32_t size = 0, i=0;
+      uint32_t size = 0, i=0;//
       uart_receive_MSG(aRxBuffer,2);
       if (Buffercmp((uint8_t*)"ST", aRxBuffer,2));
       aRxBuffer[0] = 0; aRxBuffer[1] = 0;
@@ -634,18 +637,20 @@ STAGE exec_command(void)
       while (address < address_end )
       {
         i = 0;
-        while(i < 1024)
-        {
+
         *data = flash_read ( address);
         buff_1k [0+i] = *(((uint8_t*)data)+3);
         buff_1k [1+i] = *(((uint8_t*)data)+2);
         buff_1k [2+i] = *(((uint8_t*)data)+1);
         buff_1k [3+i] = *((uint8_t*)data);
         address+=4; i+=4;
- 
+        if (i >1023) 
+        {
+          trans_msg( buff_1k,1024);
+          i = 0;
         }
-        trans_msg( buff_1k,1024);
       }
+      trans_msg (buff_1k, i);
       trans_msg ((uint8_t*)"EOF",4);
       uart_receive_MSG(aRxBuffer,2);
       if( Buffercmp((uint8_t*)"CS", aRxBuffer, 2) == 0) erase_sectors ( uData.flash_address_start, uData.flash_address_end);
