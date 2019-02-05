@@ -17,7 +17,7 @@
 /* Private define ------------------------------------------------------------*/
 #define MAX_COMMAND_NUMBER 6
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_2   /* Start @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_12   /* Start @ of user Flash area */
 #define FLASH_USER_END_ADDR     ADDR_FLASH_SECTOR_23  +  GetSectorSize(ADDR_FLASH_SECTOR_23) -1 /* End @ of user Flash area : sector start address + sector size -1 */
 ///////////////////////////////
 //#define DATA_32                 ((uint32_t)0x12345678)
@@ -39,7 +39,7 @@ struct uDATA  {
               uint32_t flash_sector_start;
               uint32_t flash_sector_end;
               uint32_t* flash_data;
-              uint32_t pattern;
+//              uint32_t pattern;
               uint8_t command;//1 - ClearALL,2-ClearSector,3-ClearWord,4-
               uint8_t command_length;
               } uData;
@@ -115,7 +115,7 @@ void modif_uint8_32 (uint8_t* arr_in, uint32_t* arr_out);
 
 /* Private function prototypes ---------FLASH section-------------------*/
 //static uint32_t erase_sector ( uint32_t sector);
-static uint32_t erase_sectors ( uint32_t address_start, uint32_t address_end);
+static uint32_t erase_sectors ( uint32_t sector_start, uint32_t sector_end);
 static uint32_t erase_bank ( uint8_t bank);
 //static void flash_write (uint32_t address,/* uint32_t* data,*/ uint32_t length);
 uint32_t get_sector_address ( uint32_t sector);
@@ -417,7 +417,7 @@ static uint8_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLen
   */
 static void Error_Handler(void)
 {
-  /* Turn LED4 on */
+  /* Toggle LED4  */
   
   while(1)
   {
@@ -448,7 +448,7 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 static void uart_receive_MSG(uint8_t* rx_buff, uint16_t size)
 {
-  /*##-2- Put UART peripheral in reception process ###########################*/  
+////////////////////Put UART peripheral in reception process /////////////////// 
    BSP_LED_On(LED3);
   if(HAL_UART_Receive_DMA(&UartHandle, rx_buff, (uint16_t) size) != HAL_OK)
 //  while(HAL_UART_Receive_DMA(&UartHandle, rx_buff, (uint16_t) size) != HAL_OK)
@@ -456,7 +456,7 @@ static void uart_receive_MSG(uint8_t* rx_buff, uint16_t size)
       Error_Handler();
     }
   
-    /*##-3- Wait for the end of the transfer ###################################*/  
+//////////////// Wait for the end of the transfer //////////////////////////// 
     while (UartReady != SET)
     {
     }
@@ -497,7 +497,7 @@ STAGE read_param(void)
   case 1: FL_ProcessTypeDef.Bank = 2 ;break;//CLearAll
   case 2: uData.flash_sector_start = aRxBuffer[0]; uData.flash_sector_end = aRxBuffer[1];  break;//ClearSector
   case 3:// uData.flash_address_start = *(uint32_t*)aRxBuffer;uData.flash_address_end = *(uint32_t*)(aRxBuffer+4); break;//read page
-  case 4: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);break;//rwrite page
+  case 4: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);break;//write page
   default: return (STAGE)2; break;
   }
   trans_msg (aRxBuffer,(uint16_t)uData.command_length);
@@ -531,14 +531,16 @@ uint8_t detect_char( uint8_t* buff,uint8_t length)
 
 static uint8_t trans_msg (uint8_t* buff, uint16_t length)
 {
+  BSP_LED_On(LED3);
   if(HAL_UART_Transmit_DMA(&UartHandle, buff, length)!= HAL_OK)
   {
     Error_Handler();//return 1;
   }  
-  /*##-5- Wait for the end of the transfer ###################################*/  
+///////////////// Wait for the end of the transfer  
   while (UartReady != SET)
   {
   }  
+  BSP_LED_Off(LED3);
   /* Reset transmission flag */
   UartReady = RESET;
   return 0;
@@ -578,62 +580,101 @@ STAGE exec_command(void)
     }
   case 2:
     {
-      if( erase_sectors ( uData.flash_sector_start, uData.flash_sector_end )) trans_msg((uint8_t*)&uFLASH_ProcessTypeDefStruct.ErrorCode,4);
+      if( erase_sectors ( uData.flash_sector_start, uData.flash_sector_end ) ) trans_msg((uint8_t*)&uFLASH_ProcessTypeDefStruct.ErrorCode,4);
       else  trans_msg ((uint8_t*)"CSOK",4);
 //      stage = READCMD;
       break;
     }
-  case 3:// Pead Page
+  case 3:// Read Page
     {
       uint32_t  i=0;
       uint8_t* buff_1k = (uint8_t*) malloc (1024);
       uint32_t address = uData.flash_address_start;
       i = 0;
       while (address < uData.flash_address_end +1 )
-      {     
+      { 
+        BSP_LED_On(LED4);
         *(uint32_t*)&buff_1k[i] = flash_read ( address);
+        BSP_LED_Off(LED4);
         address+=4; i+=4;
         if (i >1023) 
         {
+          BSP_LED_On(LED3);
           trans_msg( buff_1k,1024);
           i = 0;
+          BSP_LED_Off(LED3);
         }
+        
       }
-      trans_msg (buff_1k, i);
+      if (i) trans_msg (buff_1k, i);
       trans_msg ((uint8_t*)"EOF",4);
       break;
 //      return READCMD;      
     }
   case 4: // Write Page
     {
+      uint32_t n=0;
       uint8_t* buff_1k ;
-      uint32_t  length=0;
+//      uint32_t  length=0;
       uint32_t size = uData.flash_address_end - uData.flash_address_start +4;
       uint32_t address = uData.flash_address_start;
-      if (size < 1025) 
+      n = size / 1024;
+      if (size < 1024) 
       {
         buff_1k = (uint8_t*) malloc (size);
-        length = size;
+ //       length = size;
       }
       else 
       {
         buff_1k = (uint8_t*) malloc (1024);
-        length = 1024;
-      }            
-      while (address < uData.flash_address_end +1 )
-      {  
-        address+=1024;   
+ //       length = 1024;
+      } 
+
+      trans_msg( (uint8_t*)"RDRV", 4);
+      /*
+      if (size/1024)
+      {
+        uint32_t e_addr = uData.flash_address_end - size%1024;
+        while (address < e_addr )/////////////// +1 ?????
+        {  
+         
+          uart_receive_MSG ( buff_1k, length);
+          flash_write ( address, buff_1k, length);        
+          address+=1024;  
+          kb++;////// for debuging!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! erase!!!!!!!!!!!!!!!!!!!!!!!!
+          trans_msg((uint8_t*)"WROK",4);
+        }
+        address -= 1024;
+      }
+      if(size%1024)
+      {
+        uart_receive_MSG ( buff_1k, size%1024);
+        flash_write ( address, buff_1k, size%1024);////////////////////////////////
+      }        
+      while ( (address += 1024) < uData.flash_address_end +4)
+      {
         uart_receive_MSG ( buff_1k, length);
-        flash_write ( address, buff_1k, length);        
+        flash_write ( address - 1024, buff_1k, length);        
+        //address+=1024;
         
         trans_msg((uint8_t*)"WROK",4);
+      }       */
+      while(n--)
+      {
+        uart_receive_MSG ( buff_1k, 1024);
+        flash_write ( address, buff_1k, 1024);
+        address +=1024;
+        trans_msg((uint8_t*)"WROK",4);
       }
-      uart_receive_MSG ( buff_1k, size%1024);
-      flash_write ( address - 1024, buff_1k, size%1024);
+      if (size%1024)
+      {
+        uart_receive_MSG ( buff_1k, size%1024);
+        flash_write ( address, buff_1k, size%1024);
+      }
       trans_msg ((uint8_t*)"EOWR",4);
       break;
     }
-  } 
+   } 
  return READCMD ;
 }
 
@@ -659,12 +700,13 @@ static uint32_t erase_bank ( uint8_t bank)
   default : uFLASH_ProcessTypeDefStruct.ErrorCode  = 0xff;// Uncorrect Bank number
   }
   HAL_FLASH_Unlock();
+  BSP_LED_On(LED4);
   if (HAL_FLASHEx_Erase (&EraseInitStruct,&SectorError)!=HAL_OK)
   {
      uFLASH_ProcessTypeDefStruct.ErrorCode = (uint32_t)HAL_FLASH_GetError();
     
   }
-  
+  BSP_LED_Off(LED3);
   HAL_FLASH_Lock();
  return uFLASH_ProcessTypeDefStruct.ErrorCode; 
 }
@@ -689,15 +731,18 @@ static uint32_t erase_sector ( uint32_t sector)
 */
 
 
-static uint32_t erase_sectors ( uint32_t address_start, uint32_t address_end)
+static uint32_t erase_sectors ( uint32_t sector_start, uint32_t sector_end)
 {
-  
-  EraseInitStruct.NbSectors = GetSector(address_end) - GetSector(address_start) + 1;  
+  EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
+  EraseInitStruct.Sector = sector_start;
+  EraseInitStruct.NbSectors = sector_end - sector_start + 1;  
   HAL_FLASH_Unlock();
+  BSP_LED_On(LED4);
   if (HAL_FLASHEx_Erase (&EraseInitStruct,&SectorError)!=HAL_OK)
   {
      uFLASH_ProcessTypeDefStruct.ErrorCode = (uint32_t)HAL_FLASH_GetError();    
   }  
+  BSP_LED_Off(LED4);
   HAL_FLASH_Lock();
  return uFLASH_ProcessTypeDefStruct.ErrorCode; 
 }
@@ -877,20 +922,21 @@ static void flash_write (uint32_t address, uint8_t* data, uint32_t length)
     
     }*/
  //   HAL_StatusTypeDef st;
+  uint32_t i = 0;
       HAL_FLASH_Unlock();
+      BSP_LED_On(LED4);
       while (length)
       {
         __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
                     FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-        HAL_FLASH_Program (FLASH_TYPEPROGRAM_WORD, address, *(uint64_t*)data);
-        address+=4;
-        length--;
+        HAL_FLASH_Program (FLASH_TYPEPROGRAM_WORD, address, *(uint64_t*)(data+i));
+        address+=4;i+=4;
+        length -= 4;
         FLASH_WaitForLastOperation(1000);
       }  
+      BSP_LED_Off(LED4);
    HAL_FLASH_Lock();
 }
-
-
 
 void test (void)
 {
