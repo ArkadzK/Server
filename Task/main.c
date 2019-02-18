@@ -178,7 +178,7 @@ int main(void)
     BSP_LED_Off(LED3);
 
 //  test();
-  stage = START;//READCMD;
+  stage = READCMD;//START;//
   while (1)
   {
     switch (stage)// ERROR = 0, START, READCMD, READPARAM,EXECCMD};
@@ -381,8 +381,13 @@ static STAGE read_cmd(uint8_t* comm, uint8_t* length)
   uint8_t stage = 0;
   uart_receive_MSG ( aRxBuffer, 2);
   *comm = aRxBuffer[0];
-  *length = aRxBuffer[1];
-  if ((*comm <1)&&(*comm>MAX_COMMAND_NUMBER))
+  *length = aRxBuffer[1];////////////////////////////////////////////////////////
+  if((*comm == 'C') && (*length =='O'))
+  {
+    comm_est();
+    return READCMD;
+  }
+  else if ((*comm <1)&&(*comm>MAX_COMMAND_NUMBER))
   {
      aTxBuffer[0]=0;aTxBuffer[1]=0;
      trans_msg( aTxBuffer, 2);
@@ -403,7 +408,7 @@ STAGE read_param(void)
   {
   case 1: FL_ProcessTypeDef.Bank = 2 ;break;//CLearAll
   case 2: uData.flash_sector_start = aRxBuffer[0]; uData.flash_sector_end = aRxBuffer[1];  break;//ClearSector
-  case 3:// uData.flash_address_start = *(uint32_t*)aRxBuffer;uData.flash_address_end = *(uint32_t*)(aRxBuffer+4); break;//read page
+  case 3://read page
   case 4: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);break;//write page
   default: return (STAGE)2; break;
   }
@@ -454,20 +459,20 @@ static uint8_t trans_msg (uint8_t* buff, uint16_t length)
 
 static STAGE comm_est (void)
 {
-  do 
+ /* do 
   {
     clear_buff(aRxBuffer,4);
     uart_receive_MSG(aRxBuffer, 4);
-  }
-  while(Buffercmp(aRxBuffer, "COM",3)!=0);
+  }//////////////////////////////////////////////////////////
+  while(Buffercmp(aRxBuffer, "COM",3)!=0);*/
   clear_buff(aRxBuffer,4);    
   if(!trans_msg(snd_msg[0], 16)) 
   {
-    uart_receive_MSG(aRxBuffer, 2);
-    if(Buffercmp(aRxBuffer, "OK",2)) 
+    uart_receive_MSG(aRxBuffer, 2);////////////////////////
+/*    if(Buffercmp(aRxBuffer, "OK",2)) 
     {
-      clear_buff(aRxBuffer,3); HAL_Delay(200); return START;
-    }
+      clear_buff(aRxBuffer,3); return START;
+    }*/
   }
   clear_buff(aRxBuffer,3);
   return READCMD;
@@ -547,6 +552,7 @@ STAGE exec_command(void)
       trans_msg ((uint8_t*)"EOWR",4);
       break;
     }
+ // default: return START; /////////////////////////////////////////////////////
    } 
  return READCMD ;
 }
@@ -577,7 +583,7 @@ static uint32_t erase_bank ( uint8_t bank)
   {
      uFLASH_ProcessTypeDefStruct.ErrorCode = (uint32_t)HAL_FLASH_GetError();    
   }
-  BSP_LED_Off(LED3);
+  BSP_LED_Off(LED4);
   HAL_FLASH_Lock();
   return uFLASH_ProcessTypeDefStruct.ErrorCode; 
 }

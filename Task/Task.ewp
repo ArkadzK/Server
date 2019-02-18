@@ -1073,11 +1073,11 @@
                 </option>
                 <option>
                     <name>Input description</name>
-                    <state></state>
+                    <state>Full formatting, without multibyte support.</state>
                 </option>
                 <option>
                     <name>Output description</name>
-                    <state></state>
+                    <state>Full formatting, without multibyte support.</state>
                 </option>
                 <option>
                     <name>GOutputBinary</name>
@@ -1085,7 +1085,7 @@
                 </option>
                 <option>
                     <name>OGCoreOrChip</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>GRuntimeLibSelect</name>
@@ -1099,7 +1099,7 @@
                 </option>
                 <option>
                     <name>RTDescription</name>
-                    <state></state>
+                    <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
                 </option>
                 <option>
                     <name>OGProductVersion</name>
@@ -1107,7 +1107,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>7.50.2.0</state>
+                    <state>8.32.1.18618</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -1119,7 +1119,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state></state>
+                    <state>STM32F429ZI	ST STM32F429ZI</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -1153,12 +1153,12 @@
                 </option>
                 <option>
                     <name>RTConfigPath2</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
                     <version>26</version>
-                    <state>38</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -1175,21 +1175,21 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>26</version>
-                    <state>38</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state></state>
+                    <state>STM32F429ZI	ST STM32F429ZI</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>NEON</name>
@@ -1198,7 +1198,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>26</version>
-                    <state>38</state>
+                    <state>39</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>
@@ -1239,7 +1239,7 @@
                 </option>
                 <option>
                     <name>DSPExtension</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>TrustZone</name>
@@ -1266,6 +1266,9 @@
                 <option>
                     <name>CCDefines</name>
                     <state>NDEBUG</state>
+                    <state>USE_HAL_DRIVER</state>
+                    <state>STM32F429xx</state>
+                    <state>USE_STM32F429I_DISCO</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1374,7 +1377,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.o</state>
                 </option>
                 <option>
                     <name>CCLibConfigHeader</name>
@@ -1390,7 +1393,10 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state></state>
+                    <state>C:\stm32_proj\Libraries\CMSIS\Inc</state>
+                    <state>C:\stm32_proj\Libraries\STM32F4xx_HAL_Driver\Inc</state>
+                    <state>C:\stm32_proj\Libraries\STM32F429I-Discovery</state>
+                    <state>C:\stm32_proj\Libraries\CMSIS\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1640,7 +1646,7 @@
                 </option>
                 <option>
                     <name>AOutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.o</state>
                 </option>
                 <option>
                     <name>ALimitErrorsCheck</name>
@@ -1809,7 +1815,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\config\linker\ST\stm32f429xI.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -1869,7 +1875,7 @@
                 </option>
                 <option>
                     <name>IlinkProgramEntryLabel</name>
-                    <state></state>
+                    <state>__iar_program_start</state>
                 </option>
                 <option>
                     <name>DoFill</name>
@@ -2042,7 +2048,7 @@
                 </option>
                 <option>
                     <name>IlinkTrustzoneImportLibraryOut</name>
-                    <state>###Unitialized###</state>
+                    <state>Task_import_lib.o</state>
                 </option>
                 <option>
                     <name>OILinkExtraOption</name>
@@ -2092,6 +2098,258 @@
             <name>STM32F429I-DISCOVERY</name>
             <file>
                 <name>$PROJ_DIR$\..\Libraries\STM32F429I-Discovery\stm32f429i_discovery.c</name>
+                <configuration>
+                    <name>Release</name>
+                    <settings>
+                        <name>ICCARM</name>
+                        <data>
+                            <version>35</version>
+                            <wantNonLocal>0</wantNonLocal>
+                            <debug>0</debug>
+                            <option>
+                                <name>CCOptimizationNoSizeConstraints</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCDefines</name>
+                                <state>NDEBUG</state>
+                            </option>
+                            <option>
+                                <name>CCPreprocFile</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCPreprocComments</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCPreprocLine</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCListCFile</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCListCMnemonics</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCListCMessages</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCListAssFile</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCListAssSource</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCEnableRemarks</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCDiagSuppress</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CCDiagRemark</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CCDiagWarning</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CCDiagError</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CCObjPrefix</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>CCAllowList</name>
+                                <version>1</version>
+                                <state>11111110</state>
+                            </option>
+                            <option>
+                                <name>CCDebugInfo</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IEndianMode</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>IProcessor</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>IExtraOptionsCheck</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IExtraOptions</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CCLangConformance</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCSignedPlainChar</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>CCRequirePrototypes</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCDiagWarnAreErr</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCCompilerRuntimeInfo</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IFpuProcessor</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>OutputFile</name>
+                                <state>$FILE_BNAME$.o</state>
+                            </option>
+                            <option>
+                                <name>CCLibConfigHeader</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>PreInclude</name>
+                                <state></state>
+                            </option>
+                            <option>
+                                <name>CompilerMisraOverride</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCIncludePath2</name>
+                                <state>C:\stm32_proj\Libraries\CMSIS\Inc</state>
+                            </option>
+                            <option>
+                                <name>CCStdIncCheck</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCCodeSection</name>
+                                <state>.text</state>
+                            </option>
+                            <option>
+                                <name>IProcessorMode2</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>CCOptLevel</name>
+                                <state>3</state>
+                            </option>
+                            <option>
+                                <name>CCOptStrategy</name>
+                                <version>0</version>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCOptLevelSlave</name>
+                                <state>3</state>
+                            </option>
+                            <option>
+                                <name>CompilerMisraRules98</name>
+                                <version>0</version>
+                                <state>1000111110110101101110011100111111101110011011000101110111101101100111111111111100110011111001110111001111111111111111111111111</state>
+                            </option>
+                            <option>
+                                <name>CompilerMisraRules04</name>
+                                <version>0</version>
+                                <state>111101110010111111111000110111111111111111111111111110010111101111010101111111111111111111111111101111111011111001111011111011111111111111111</state>
+                            </option>
+                            <option>
+                                <name>CCPosIndRopi</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCPosIndRwpi</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCPosIndNoDynInit</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccLang</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccCDialect</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>IccAllowVLA</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccStaticDestr</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>IccCppInlineSemantics</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccCmsis</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>IccFloatSemantics</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCNoLiteralPool</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCOptStrategySlave</name>
+                                <version>0</version>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCEncSource</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCEncOutput</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>CCEncOutputBom</name>
+                                <state>1</state>
+                            </option>
+                            <option>
+                                <name>CCEncInput</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccExceptions2</name>
+                                <state>0</state>
+                            </option>
+                            <option>
+                                <name>IccRTTI2</name>
+                                <state>0</state>
+                            </option>
+                        </data>
+                    </settings>
+                </configuration>
             </file>
         </group>
         <group>
