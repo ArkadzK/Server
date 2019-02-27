@@ -24,12 +24,12 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 typedef enum  {
-  ERR = 0, START, READCMD, READPARAM, EXECCMD} STAGE;
+  ERR = 0,/* START, */READCMD, READPARAM, EXECCMD} STAGE;
 uint32_t FirstSector = 0, NbOfSectors = 0, Address = 0;
 uint32_t SectorError = 0;
 __IO uint32_t data32 = 0 , MemoryProgramStatus = 0;
 
-STAGE prev_stage = ERR;
+//STAGE prev_stage = ERR;
 STAGE stage;
 
 struct uDATA  {              
@@ -96,7 +96,7 @@ static void Error_Handler(void);
 static uint8_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength);
 static void uart_receive_MSG(uint8_t* rx_buff, uint16_t size);
 static void clear_buff( uint8_t* buf, uint32_t length);
-STAGE comm_est (void);
+void comm_est (void);
 STAGE read_cmd (uint8_t* comm, uint8_t* length);
 STAGE read_param(void);
 STAGE exec_command(void);
@@ -132,7 +132,7 @@ FLASH_ProcessTypeDef uFLASH_ProcessTypeDefStruct;
 
 int main(void)
 {
-  STAGE stage;
+ // STAGE stage;
   EraseInitStruct.VoltageRange =3;
   
 //  enum stages stage;
@@ -183,10 +183,10 @@ int main(void)
   {
     switch (stage)// ERROR = 0, START, READCMD, READPARAM,EXECCMD};
     {
-    case 1:  stage = comm_est(); break;// stage = START;
-    case 2:  stage = read_cmd(& uData.command , & uData.command_length); break;// stage = READCMD;
-    case 3:  stage = read_param(); break;//stage = READDATA
-    case 4:  stage  = exec_command(); break;//stage = EXECCMD
+//    case 1:  stage = comm_est(); break;// stage = START;
+    case 2-1:  stage = read_cmd(& uData.command , & uData.command_length); break;// stage = READCMD;
+    case 3-1:  stage = read_param(); break;//stage = READDATA
+    case 4-1:  stage  = exec_command(); break;//stage = EXECCMD
     default: return ERR; break;      
     } 
   }
@@ -393,8 +393,8 @@ static STAGE read_cmd(uint8_t* comm, uint8_t* length)
      trans_msg( aTxBuffer, 2);
      return READCMD;
   }    
-  else if (*comm == 1) stage = 4;
-  else stage  = 3;
+  else if (*comm == 1) stage = 4-1;//////////////////////////////////////
+  else stage  = 3-1;
   clear_buff ( aRxBuffer, 2);
   trans_msg ( comm,1); trans_msg ( length,1); 
   return (STAGE)stage;
@@ -410,11 +410,11 @@ STAGE read_param(void)
   case 2: uData.flash_sector_start = aRxBuffer[0]; uData.flash_sector_end = aRxBuffer[1];  break;//ClearSector
   case 3://read page
   case 4: uData.flash_address_start = *(uint32_t*)aRxBuffer; uData.flash_address_end = *(uint32_t*)(aRxBuffer+4);break;//write page
-  default: return (STAGE)2; break;
+  default: return (STAGE)(2-1); break;/////////////////////////////////////////////////////
   }
   trans_msg (aRxBuffer,(uint16_t)uData.command_length);
   clear_buff(aRxBuffer, uData.command_length);
-  return (STAGE)4;
+  return (STAGE)(4-1);/////////////////////////////////////////////////////////////
 }
 
 static void clear_buff ( uint8_t* buff, uint32_t length)
@@ -457,25 +457,14 @@ static uint8_t trans_msg (uint8_t* buff, uint16_t length)
   return 0;
 }
 
-static STAGE comm_est (void)
+static void comm_est (void)
 {
- /* do 
-  {
-    clear_buff(aRxBuffer,4);
-    uart_receive_MSG(aRxBuffer, 4);
-  }//////////////////////////////////////////////////////////
-  while(Buffercmp(aRxBuffer, "COM",3)!=0);*/
-  clear_buff(aRxBuffer,4);    
+   clear_buff(aRxBuffer,4);    
   if(!trans_msg(snd_msg[0], 16)) 
   {
     uart_receive_MSG(aRxBuffer, 2);////////////////////////
-/*    if(Buffercmp(aRxBuffer, "OK",2)) 
-    {
-      clear_buff(aRxBuffer,3); return START;
-    }*/
   }
   clear_buff(aRxBuffer,3);
-  return READCMD;
 }
 
 STAGE exec_command(void)
@@ -848,6 +837,3 @@ uint8_t sector_is_cleared ( uint32_t sector)
   }
   return 0;
 }
-
- 
-
